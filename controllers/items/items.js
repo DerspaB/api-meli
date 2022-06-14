@@ -5,6 +5,10 @@ const getItems = async (req = request, res = response) => {
   // se define un estado inicial para los items que en este caso es un array vacio
   let items = [];
 
+  // se define un estado inicial para las categories que en este caso es un array vacio
+
+  let categories = [];
+
   // obtenemos el query dado por url del endpoint
   const { q = "" } = req.query;
 
@@ -34,11 +38,20 @@ const getItems = async (req = request, res = response) => {
         prices: {
           currency: item.prices.prices[0].currency_id,
           amount: item.prices.prices[0].amount,
+          decimals: 0,
         },
         free_shipping: item.shipping.free_shipping,
         picture: item.thumbnail,
         condition: item.condition,
       }));
+
+      // se recorre los datos obtenidos para obtener las categorias y añadirlas y en caso de que este ya se en encuentre en el array
+      // no se agrega de nuevo.
+
+      data.results.forEach((item) => {
+        !categories.includes(item.category_id) &&
+          categories.push(item.category_id);
+      });
     }
 
     // una vez que se haya realizado la estructura y almacenado en las variables de items, se procede a dar una respuesta de la request
@@ -48,7 +61,7 @@ const getItems = async (req = request, res = response) => {
         name: process.env.NAME,
         lastname: process.env.LASTNAME,
       },
-      categories: ["Gaming", "Tecnologia"],
+      categories,
       items,
     });
   } catch (error) {
