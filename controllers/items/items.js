@@ -61,6 +61,45 @@ const getItems = async (req = request, res = response) => {
   }
 };
 
+const getItemDescription = async (req = request, res = response) => {
+  const id = req.params.id;
+  let item;
+  let description;
+
+  try {
+    item = await axios.get(`https://api.mercadolibre.com/items/${id}`);
+    description = await axios.get(
+      `https://api.mercadolibre.com/items/${id}/description`
+    );
+    res.status(200).json({
+      author: {
+        name: process.env.NAME,
+        lastname: process.env.LASTNAME,
+      },
+      item: {
+        id: item.data.id,
+        title: item.data.title,
+        price: {
+          currency: item.data.currency_id,
+          amount: item.data.price,
+          decimals: 0,
+        },
+        picture: item.data.thumbnail,
+        condition: item.data.condition,
+        free_shipping: item.data.free_shipping,
+        sold_quantity: item.data.sold_quantity,
+        description: description.data.plain_text,
+      },
+    });
+  } catch (error) {
+    res.status(200).json({
+      msg: "get item error",
+      error,
+    });
+  }
+};
+
 module.exports = {
   getItems,
+  getItemDescription,
 };
